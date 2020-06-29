@@ -1,0 +1,40 @@
+{
+  "name": "friendly-pow",
+  "version": "0.0.1",
+  "description": "Friendly WASM & JS Proof of Work algorithms for CAPTCHA",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint src/**/*.ts test/**/*.ts",
+    "prebuild": "rimraf dist",
+    "build:as:untouched": "asc src/entryWasm.ts -b dist/wasm/untouched.wasm -t dist/wasm/untouched.wat -d dist/wasm/untouched.d.ts --runtime stub --sourceMap --debug",
+    "build:as:optimized": "asc src/entryWasm.ts -b dist/wasm/optimized.wasm -t dist/wasm/optimized.wat -d dist/wasm/optimized.d.ts --runtime stub -O3 --noAssert",
+    "build:as": "npm run build:as:untouched && npm run build:as:optimized",
+    "wrap:as:optimized": "wasmwrap --input dist/wasm/optimized.wasm dist --output dist/wasm/optimized.wrap.ts --no-include-decode",
+    "wrap:as:untouched": "wasmwrap --input dist/wasm/untouched.wasm dist --output dist/wasm/untouched.wrap.ts --no-include-decode",
+    "wrap:as": "npm run wrap:as:untouched && npm run wrap:as:optimized",
+    "build:ts": "tsc",
+    "build": "npm run prebuild && npm run build:as && npm run wrap:as && npm run build:ts",
+    "test": "asp --verbose && jest --coverage",
+    "test:as": "asp --verbose",
+    "test:ts": "jest --coverage"
+  },
+  "author": "Guido Zuidhof <me@guido.io>",
+  "license": "MIT",
+  "devDependencies": {
+    "@as-pect/cli": "^4.0.0",
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.11",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "assemblyscript": "^0.12.0",
+    "eslint": "^6.8.0",
+    "jest": "^26.0.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.1.0",
+    "typescript": "^3.6.3",
+    "wasmwrap": "^1.0.0"
+  },
+  "dependencies": {}
+}

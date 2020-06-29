@@ -1,0 +1,13 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+      "./node_modules/assemblyscript/std/assembly/**/*.ts",
+      "./src/**/*.ts",
+      "./test/**/*.ts",
+    ],
+    "exclude": [
+      "node_modules/",
+      "dist/",
+    ]
+  }
+  
