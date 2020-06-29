@@ -1,12 +1,11 @@
 {
   "name": "friendly-pow",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Friendly WASM & JS Proof of Work algorithms for CAPTCHA",
-  "files": [
-    "dist"
-  ],
+  "author": "Guido Zuidhof <me@guido.io>",
+  "repository": "https://github.com/gzuidhof/friendly-pow",
+  "license": "MIT",
   "scripts": {
-    "lint": "eslint src/**/*.ts test/**/*.ts",
     "prebuild": "rimraf dist",
     "build:as:untouched": "asc src/entryWasm.ts -b dist/wasm/untouched.wasm -t dist/wasm/untouched.wat -d dist/wasm/untouched.d.ts --runtime stub --sourceMap --debug",
     "build:as:optimized": "asc src/entryWasm.ts -b dist/wasm/optimized.wasm -t dist/wasm/optimized.wat -d dist/wasm/optimized.d.ts --runtime stub -O3 --noAssert",
@@ -15,13 +14,14 @@
     "wrap:as:untouched": "wasmwrap --input dist/wasm/untouched.wasm dist --output dist/wasm/untouched.wrap.ts --no-include-decode",
     "wrap:as": "npm run wrap:as:untouched && npm run wrap:as:optimized",
     "build:ts": "tsc",
-    "build": "npm run prebuild && npm run build:as && npm run wrap:as && npm run build:ts",
+    "build": "npm run prebuild && npm run build:as:optimized && npm run wrap:as:optimized && npm run build:ts && cp package.json dist/package.json",
     "test": "asp --verbose && jest --coverage",
     "test:as": "asp --verbose",
-    "test:ts": "jest --coverage"
+    "test:ts": "jest --coverage",
+    "prepublishOnly": "echo \"Error: Don't run 'npm publish' in root. Use 'npm run dist' instead.\" && exit 1",
+    "dist": "cd dist && npm publish --ignore-scripts",
+    "lint": "eslint src/**/*.ts test/**/*.ts"
   },
-  "author": "Guido Zuidhof <me@guido.io>",
-  "license": "MIT",
   "devDependencies": {
     "@as-pect/cli": "^4.0.0",
     "@types/jest": "^25.2.3",
