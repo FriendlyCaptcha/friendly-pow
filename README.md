@@ -1,4 +1,4 @@
-# Friendly Proof of Work (PoW) 
+# 👾 Friendly Proof of Work (PoW) 
 
 The PoW challenge library used by FriendlyCaptcha.
 
@@ -85,7 +85,7 @@ Currently always 1, in the future this can be bumped if breaking changes are mad
 (In the future) the user could add their own data to the puzzle and later verify these values are as expected. 
 
 ### Signature
-The puzzle buffer is signed by the FriendlyCaptcha servers using an `app_secret` value. FriendlyCaptcha and the user's server that wants to verify the solutions share a common `app_secret`. The puzzle buffer's first 16 bytes are the [`HMAC-256-128`](https://tools.ietf.org/html/draft-ietf-ipsec-ciph-sha-256-01) of `(app_secret, puzzle_buffer_excluding_first_16_bytes)` with the buffer base64 encoded. 
+The puzzle buffer is signed by the FriendlyCaptcha servers using a *signing secret*. The puzzle buffer's first 16 bytes are the [`HMAC-256-128`](https://tools.ietf.org/html/draft-ietf-ipsec-ciph-sha-256-01) of `(app_secret, puzzle_buffer)` with the buffer base64 encoded. 
 
 This signature is sent over the wire hex encoded.
 
