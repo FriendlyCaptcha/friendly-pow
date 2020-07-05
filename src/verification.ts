@@ -49,7 +49,7 @@ export function checkPuzzleExpiry(puzzleBuffer: Uint8Array): boolean {
     const puzzleExpiryByte = view.getUint8(PUZZLE_EXPIRY_OFFSET);
     
     const expirationTime = puzzleTimestamp + expiryToDurationInSeconds(puzzleExpiryByte);
-    return expirationTime < timeNow;
+    return expirationTime >= timeNow;
 }
 
 export function checkAccountAndAppId(puzzleBuffer: Uint8Array, accountId: number, appId: number) {
