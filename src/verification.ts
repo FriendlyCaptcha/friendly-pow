@@ -45,7 +45,7 @@ export function checkAmountOfSolutions(puzzleBuffer: Uint8Array, solutionBuffer:
 export function checkPuzzleExpiry(puzzleBuffer: Uint8Array): boolean {
     const timeNow = getTimestampInSeconds();
     const view = new DataView(puzzleBuffer.buffer);
-    const puzzleTimestamp = view.getUint16(PUZZLE_TIMESTAMP_OFFSET);
+    const puzzleTimestamp = view.getUint32(PUZZLE_TIMESTAMP_OFFSET);
     const puzzleExpiryByte = view.getUint8(PUZZLE_EXPIRY_OFFSET);
     
     const expirationTime = puzzleTimestamp + expiryToDurationInSeconds(puzzleExpiryByte);
