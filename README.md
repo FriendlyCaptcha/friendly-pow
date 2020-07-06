@@ -27,7 +27,7 @@ const T = (Math.pow(2, (255.999 - d)/8.0) >>> 0) // >>> 0 forces it to unsigned 
 ```
 
 ### Solving the puzzle
-First the puzzle buffer is padded with zeroes until it is 128 bytes long. Then the goal is to change the last 8 bytes of this buffer (which we will call the `solution`). until the [`blake2b-256`](https://en.wikipedia.org/wiki/BLAKE_(hash_function)) hash of this buffer meets this criteria:
+First the puzzle buffer is padded with zeroes until it is 128 bytes long. Then the goal is to change the last 8 bytes of this buffer (which we will call the `solution`) until the [`blake2b-256`](https://en.wikipedia.org/wiki/BLAKE_(hash_function)) hash of this buffer meets this criteria:
 
 The first 4 bytes of the `blake2b-256` hash are read as a little-endian unsigned 32 bit integer. If this integer smaller than the *difficulty threshold* `T` for the puzzle, the `solution` is **valid**.
 
@@ -85,7 +85,7 @@ Currently always 1, in the future this can be bumped if breaking changes are mad
 (In the future) the user could add their own data to the puzzle and later verify these values are as expected. 
 
 ### Signature
-The puzzle buffer is signed by the FriendlyCaptcha servers using a *signing secret*. The puzzle buffer's first 16 bytes are the [`HMAC-256-128`](https://tools.ietf.org/html/draft-ietf-ipsec-ciph-sha-256-01) of `(app_secret, puzzle_buffer)` with the buffer base64 encoded. 
+The puzzle buffer is signed by the FriendlyCaptcha servers using a *signing secret*. The puzzle buffer's first 16 bytes are the [`HMAC-256-128`](https://tools.ietf.org/html/draft-ietf-ipsec-ciph-sha-256-01) of `(signing_secret, puzzle_buffer)` with the buffer base64 encoded. 
 
 This signature is sent over the wire hex encoded.
 
@@ -110,7 +110,7 @@ Verification can be done as follows:
 * **Check Account and App ID**: Check whether the puzzle was for this account + website (section).
 * **Expiration**: Timestamp and expiry time is compared to current time.
 * **Version**: The version of the puzzle is checked to be sure we support that version.
-* **Solution Count**: Check that we have enough solutions to the puzzle.
+* **Solution Count**: Check that we have enough solutions to the puzzle and that there are no duplicates.
 * **Replay check**: Check whether this puzzle has been submitted before.
 * **Solution verification**: Each of the solutions are verified to produce a correct hash given the difficulty.
 
