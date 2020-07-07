@@ -92,5 +92,5 @@ export async function instantiateWasmSolver(module: any): Promise<{exports: /*(A
     const result = await WebAssembly.instantiate(module, imports);
     const exports = addUtilityExports(result);
 
-    return {...result, exports} as any;
+    return {exports} as any;
 }
