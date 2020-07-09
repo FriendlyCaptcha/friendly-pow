@@ -19,6 +19,6 @@ describe("solver", () => {
         const hashRate: f64 = (n as f64) / ((Date.now()-t) as f64/1000.0);
 
         expect(hash.length).toBe(0); // No solution found
-        expect(hashRate).toBeGreaterThan(30_000);
+        expect(hashRate).toBeGreaterThan(50_000);
     });
 });

@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+      "outDir": "./build",
+      "rootDir": "../../",
+      "module": "ESNext",
+      "target": "ES2017",
+      "lib": ["DOM", "ESNext"],
+      "strict": true,
+      "sourceMap": true,
+      "experimentalDecorators": true,
+    },
+    "include": [
+      "*.ts",
+      "../../src/**/*.ts"
+    ],
+    // "exclude": [
+    //   "node_modules/",
+    //   "dist/",
+    //   "./src/blake2b/blake2b64.ts",
+    //   "./src/entryWasm.ts",
+    //   "./src/solverWasm.ts",
+    //   "./test/**/*.astest.ts",
+    //   "./test/as-pect.d.ts",
+    // ]
+  }
+  

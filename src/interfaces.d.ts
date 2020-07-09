@@ -1,1 +1,1 @@
-import "assemblyscript/std/portable/index"
+import "assemblyscript/std/portable/index";

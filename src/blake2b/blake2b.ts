@@ -3,6 +3,11 @@
 // Adapted from the reference implementation in RFC7693
 // Ported to Javascript by DC - https://github.com/dcposch
 
+// declare type u64 = number;
+// declare type i64 = number;
+// declare type u32 = number;
+
+
 export class Context {
   b: Uint8Array = new Uint8Array(128);
   h: Uint32Array = new Uint32Array(16);
@@ -76,6 +81,99 @@ export function B2B_GET32(arr: Uint8Array, i: u32): u32 {
     ((arr[i + 2] as u32) << 16) ^
     ((arr[i + 3] as u32) << 24));
 }
+
+// G Mixing function with everything inlined
+// performance at the cost of readability, especially faster in old browsers
+export function B2B_G_FAST(v: Uint32Array, m: Uint32Array, a: u32, b: u32, c: u32, d: u32, ix: u32, iy: u32): void {
+  const x0 = m[ix];
+  const x1 = m[ix + 1];
+  const y0 = m[iy];
+  const y1 = m[iy + 1];
+
+  // va0 are the low bits, va1 are the high bits
+  let va0 = v[a];
+  let va1 = v[a+1];
+  let vb0 = v[b];
+  let vb1 = v[b+1];
+  let vc0 = v[c];
+  let vc1 = v[c+1];
+  let vd0 = v[d];
+  let vd1 = v[d+1];
+
+  let w0: u32, ww: u32, xor0: u32, xor1: u32;
+
+  // ADD64AA(v, a, b); // v[a,a+1] += v[b,b+1] ... in JS we must store a uint64 as two uint32s
+  // ADD64AA(v,a,b)
+  w0 = (va0 + vb0);
+  ww = ((va0 & vb0) | (va0 | vb0) & ~w0) >>> 31;
+  va0 = w0 as u32;
+  va1 = ((va1 + vb1 + ww) >>> 0) as u32;
+
+  // // ADD64AC(v, a, x0, x1); // v[a, a+1] += x ... x0 is the low 32 bits of x, x1 is the high 32 bits
+  w0 = (va0 + x0);
+  ww = ((va0 & x0) | (va0 | x0) & ~w0) >>> 31;
+  va0 = w0 as u32;
+  va1 = ((va1 + x1 + ww) >>> 0) as u32;
+
+  // v[d,d+1] = (v[d,d+1] xor v[a,a+1]) rotated to the right by 32 bits
+  xor0 = vd0 ^ va0;
+  xor1 = vd1 ^ va1;
+  // We can just swap high and low here becaeuse its a shift by 32 bits
+  vd0 = xor1 as u32;
+  vd1 = xor0 as u32;
+  
+  // ADD64AA(v, c, d);
+  w0 = (vc0 + vd0);
+  ww = ((vc0 & vd0) | (vc0 | vd0) & ~w0) >>> 31;
+  vc0 = w0 as u32;
+  vc1 = ((vc1 + vd1 + ww) >>> 0) as u32;
+
+  // v[b,b+1] = (v[b,b+1] xor v[c,c+1]) rotated right by 24 bits
+  xor0 = vb0 ^ vc0;
+  xor1 = vb1 ^ vc1;
+  vb0 = ((xor0 >>> 24) ^ (xor1 << 8));
+  vb1 = ((xor1 >>> 24) ^ (xor0 << 8));
+
+  // ADD64AA(v, a, b);
+  w0 = (va0 + vb0);
+  ww = ((va0 & vb0) | (va0 | vb0) & ~w0) >>> 31;
+  va0 = w0 as u32;
+  va1 = ((va1 + vb1 + ww) >>> 0) as u32;
+
+  // ADD64AC(v, a, y0, y1);
+  w0 = (va0 + y0);
+  ww = ((va0 & y0) | (va0 | y0) & ~w0) >>> 31;
+  va0 = w0 as u32;
+  va1 = ((va1 + y1 + ww) >>> 0) as u32;
+
+  // v[d,d+1] = (v[d,d+1] xor v[a,a+1]) rotated right by 16 bits
+  xor0 = vd0 ^ va0;
+  xor1 = vd1 ^ va1;
+  vd0 = ((xor0 >>> 16) ^ (xor1 << 16));
+  vd1 = ((xor1 >>> 16) ^ (xor0 << 16));
+
+  // ADD64AA(v, c, d);
+  w0 = (vc0 + vd0);
+  ww = ((vc0 & vd0) | (vc0 | vd0) & ~w0) >>> 31;
+  vc0 = w0 as u32;
+  vc1 = ((vc1 + vd1 + ww) >>> 0) as u32;
+
+  // v[b,b+1] = (v[b,b+1] xor v[c,c+1]) rotated right by 63 bits
+  xor0 = vb0 ^ vc0;
+  xor1 = vb1 ^ vc1;
+  vb0 = ((((xor1 as u64) >>> 31) as u64) ^ ((xor0 << 1)) as u64) as u32;
+  vb1 = ((xor0 as u64 >>> 31) as u64 ^ ((xor1 << 1)) as u64) as u32;
+
+  v[a] = va0;
+  v[a+1] = va1;
+  v[b] = vb0;
+  v[b+1] = vb1;
+  v[c] = vc0;
+  v[c+1] = vc1;
+  v[d] = vd0;
+  v[d+1] = vd1;
+}
+
 
 // G Mixing function
 // The ROTRs are inlined for speed
@@ -179,14 +277,14 @@ export function blake2bCompress(ctx: Context, last: bool): void {
 
   // twelve rounds of mixing
   for (let i = 0; i < 12; i++) {
-    B2B_G(v, m, 0, 8, 16, 24, SIGMA82[i * 16 + 0], SIGMA82[i * 16 + 1]);
-    B2B_G(v, m, 2, 10, 18, 26, SIGMA82[i * 16 + 2], SIGMA82[i * 16 + 3]);
-    B2B_G(v, m, 4, 12, 20, 28, SIGMA82[i * 16 + 4], SIGMA82[i * 16 + 5]);
-    B2B_G(v, m, 6, 14, 22, 30, SIGMA82[i * 16 + 6], SIGMA82[i * 16 + 7]);
-    B2B_G(v, m, 0, 10, 20, 30, SIGMA82[i * 16 + 8], SIGMA82[i * 16 + 9]);
-    B2B_G(v, m, 2, 12, 22, 24, SIGMA82[i * 16 + 10], SIGMA82[i * 16 + 11]);
-    B2B_G(v, m, 4, 14, 16, 26, SIGMA82[i * 16 + 12], SIGMA82[i * 16 + 13]);
-    B2B_G(v, m, 6, 8, 18, 28, SIGMA82[i * 16 + 14], SIGMA82[i * 16 + 15]);
+    B2B_G_FAST(v, m, 0, 8, 16, 24, SIGMA82[i * 16 + 0], SIGMA82[i * 16 + 1]);
+    B2B_G_FAST(v, m, 2, 10, 18, 26, SIGMA82[i * 16 + 2], SIGMA82[i * 16 + 3]);
+    B2B_G_FAST(v, m, 4, 12, 20, 28, SIGMA82[i * 16 + 4], SIGMA82[i * 16 + 5]);
+    B2B_G_FAST(v, m, 6, 14, 22, 30, SIGMA82[i * 16 + 6], SIGMA82[i * 16 + 7]);
+    B2B_G_FAST(v, m, 0, 10, 20, 30, SIGMA82[i * 16 + 8], SIGMA82[i * 16 + 9]);
+    B2B_G_FAST(v, m, 2, 12, 22, 24, SIGMA82[i * 16 + 10], SIGMA82[i * 16 + 11]);
+    B2B_G_FAST(v, m, 4, 14, 16, 26, SIGMA82[i * 16 + 12], SIGMA82[i * 16 + 13]);
+    B2B_G_FAST(v, m, 6, 8, 18, 28, SIGMA82[i * 16 + 14], SIGMA82[i * 16 + 15]);
   }
 
   for (let i = 0; i < 16; i++) {
