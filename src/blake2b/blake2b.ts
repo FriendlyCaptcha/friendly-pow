@@ -107,13 +107,13 @@ export function B2B_G_FAST(v: Uint32Array, m: Uint32Array, a: u32, b: u32, c: u3
   w0 = (va0 + vb0);
   ww = ((va0 & vb0) | (va0 | vb0) & ~w0) >>> 31;
   va0 = w0 as u32;
-  va1 = ((va1 + vb1 + ww) >>> 0) as u32;
+  va1 = ((va1 + vb1 + ww)) as u32;
 
   // // ADD64AC(v, a, x0, x1); // v[a, a+1] += x ... x0 is the low 32 bits of x, x1 is the high 32 bits
   w0 = (va0 + x0);
   ww = ((va0 & x0) | (va0 | x0) & ~w0) >>> 31;
   va0 = w0 as u32;
-  va1 = ((va1 + x1 + ww) >>> 0) as u32;
+  va1 = ((va1 + x1 + ww)) as u32;
 
   // v[d,d+1] = (v[d,d+1] xor v[a,a+1]) rotated to the right by 32 bits
   xor0 = vd0 ^ va0;
@@ -126,7 +126,7 @@ export function B2B_G_FAST(v: Uint32Array, m: Uint32Array, a: u32, b: u32, c: u3
   w0 = (vc0 + vd0);
   ww = ((vc0 & vd0) | (vc0 | vd0) & ~w0) >>> 31;
   vc0 = w0 as u32;
-  vc1 = ((vc1 + vd1 + ww) >>> 0) as u32;
+  vc1 = ((vc1 + vd1 + ww)) as u32;
 
   // v[b,b+1] = (v[b,b+1] xor v[c,c+1]) rotated right by 24 bits
   xor0 = vb0 ^ vc0;
@@ -138,13 +138,13 @@ export function B2B_G_FAST(v: Uint32Array, m: Uint32Array, a: u32, b: u32, c: u3
   w0 = (va0 + vb0);
   ww = ((va0 & vb0) | (va0 | vb0) & ~w0) >>> 31;
   va0 = w0 as u32;
-  va1 = ((va1 + vb1 + ww) >>> 0) as u32;
+  va1 = ((va1 + vb1 + ww)) as u32;
 
   // ADD64AC(v, a, y0, y1);
   w0 = (va0 + y0);
   ww = ((va0 & y0) | (va0 | y0) & ~w0) >>> 31;
   va0 = w0 as u32;
-  va1 = ((va1 + y1 + ww) >>> 0) as u32;
+  va1 = ((va1 + y1 + ww)) as u32;
 
   // v[d,d+1] = (v[d,d+1] xor v[a,a+1]) rotated right by 16 bits
   xor0 = vd0 ^ va0;
@@ -156,7 +156,7 @@ export function B2B_G_FAST(v: Uint32Array, m: Uint32Array, a: u32, b: u32, c: u3
   w0 = (vc0 + vd0);
   ww = ((vc0 & vd0) | (vc0 | vd0) & ~w0) >>> 31;
   vc0 = w0 as u32;
-  vc1 = ((vc1 + vd1 + ww) >>> 0) as u32;
+  vc1 = ((vc1 + vd1 + ww)) as u32;
 
   // v[b,b+1] = (v[b,b+1] xor v[c,c+1]) rotated right by 63 bits
   xor0 = vb0 ^ vc0;
