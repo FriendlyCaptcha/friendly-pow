@@ -2,7 +2,7 @@
 
 The PoW challenge library used by FriendlyCaptcha.
 
-If you are looking for the client code (=widget) and documentation, see the [**friendly-challenge** repository](https://github.com/gzuidhof/friendly-challenge).
+If you are looking for the client code (=widget) and documentation, see the [**friendly-challenge repository**](https://github.com/gzuidhof/friendly-challenge).
 
 It has a mirror implementation in both WASM and JS (as fallback for very old browsers). The WASM build is an order of magnitude faster (determined empirically).
 Here we will call the computation challenge the computer has to solve the **puzzle**, the client has to find one or more **solutions** that can later be verified.
