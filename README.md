@@ -2,8 +2,11 @@
 
 The PoW challenge library used by FriendlyCaptcha.
 
-It has a mirror implementation in both WASM and JS (as fallback for very old browsers). The WASM build is an order of magnitude faster (determined empirically).
-Here we will call the computation challenge the computer has to solve the **puzzle**, the client has to find one or more **solutions** that can later be verified.
+If you are looking for the client code (=widget) and documentation, see the [**friendly-challenge repository**](https://github.com/gzuidhof/friendly-challenge).
+
+Friendly-pow has a puzzle solver implementation in both WASM and JS (as fallback for very old browsers). The WASM build is an order of magnitude faster in my own experiments.
+
+In this document we will call the computational challenge the computer has to solve the **puzzle**, the client has to find one or more **solutions** that can later be verified.
 
 ## Implementation
 The WASM is compiled from AssemblyScript, which is more or less a subset of Typescript. The WASM build entrypoint is found at [`src/entryWasm.ts`](./src/entryWasm.ts). The wrappers for the JS and WASM build are found in the `src/api` folder, they both have the same interface.
