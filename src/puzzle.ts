@@ -2,7 +2,6 @@ import { getTimestampInSeconds } from "./timestamp";
 import {expiryToDurationInSeconds } from "./encoding";
 import { CHALLENGE_SIZE_BYTES } from "./constants";
 
-
 export const PUZZLE_TIMESTAMP_OFFSET = 0;
 export const ACCOUNT_ID_OFFSET = 4;
 export const APP_ID_OFFSET = 8;
@@ -10,6 +9,10 @@ export const PUZZLE_VERSION_OFFSET = 12;
 export const PUZZLE_EXPIRY_OFFSET = 13;
 export const NUMBER_OF_PUZZLES_OFFSET = 14;
 export const PUZZLE_DIFFICULTY_OFFSET = 15;
+export const PUZZLE_NONCE_OFFSET = 24;
+export const PUZZLE_USER_DATA_OFFSET = 32;
+
+export const PUZZLE_USER_DATA_MAX_LENGTH = 32;
 
 const VERSION = 1;
 
@@ -32,9 +35,9 @@ export function generatePuzzleBuffer(opts: {nowInSeconds?: u32; accountId: u32; 
     v.setUint8(NUMBER_OF_PUZZLES_OFFSET, opts.numberOfPuzzles);
     v.setUint8(PUZZLE_DIFFICULTY_OFFSET, opts.puzzleDifficulty);
 
-    puzzle.set(opts.eightByteNonce, 24);
-    if (opts.userDataBuffer) {
-        puzzle.set(opts.userDataBuffer, 32);
+    puzzle.set(opts.eightByteNonce, PUZZLE_NONCE_OFFSET);
+    if (opts.userDataBuffer?.slice(0, PUZZLE_USER_DATA_MAX_LENGTH)) {
+        puzzle.set(opts.userDataBuffer, PUZZLE_USER_DATA_OFFSET);
     }
 
     return puzzle;
