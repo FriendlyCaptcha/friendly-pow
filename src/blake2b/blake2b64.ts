@@ -18,22 +18,6 @@ export class Context {
 }
 
 // G Mixing function
-
-// @inline()
-// function mix(v: StaticArray<u64>, a: u32, b: u32, c: u32, d: u32, x: u64, y: u64): void {
-//   unchecked(v[a] += v[b] + x); // with input
-//   unchecked(v[d] = rotr(v[d] ^ v[a], 32));
-
-//   unchecked(v[c] += v[d]); // no input
-//   unchecked(v[b] = rotr(v[b] ^ v[c], 24));
-
-//   unchecked(v[a] += v[b] + y); // with input
-//   unchecked(v[d] = rotr(v[d] ^ v[a], 16));
-
-//   unchecked(v[c] += v[d]); // no input
-//   unchecked(v[b] = rotr(v[b] ^ v[c], 63));
-// }
-
 // @ts-ignore
 @inline()
 function mix(v: usize, a: usize, b: usize, c: usize, d: usize, x: u64, y: u64): void {
@@ -120,15 +104,6 @@ export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): vo
   // for (let i = 0; i < 12; i++) {  
   //   const o:u32 = i * 16;
   for(let o = 0; o < 12*16; o+= 16) {
-    // unchecked(mix(vPtr, 0, 4, 8, 12, m[SIGMA8[o]], m[SIGMA8[o+1]]));
-    // unchecked(mix(vPtr, 1, 5, 9, 13, m[SIGMA8[o+2]], m[SIGMA8[o+3]]));
-    // unchecked(mix(vPtr, 2, 6, 10, 14, m[SIGMA8[o+4]], m[SIGMA8[o+5]]));
-    // unchecked(mix(vPtr, 3, 7, 11, 15, m[SIGMA8[o+6]], m[SIGMA8[o+7]]));
-
-    // unchecked(mix(vPtr, 0, 5, 10, 15, m[SIGMA8[o+8]], m[SIGMA8[o+9]]));
-    // unchecked(mix(vPtr, 1, 6, 11, 12, m[SIGMA8[o+10]], m[SIGMA8[o+11]]));
-    // unchecked(mix(vPtr, 2, 7, 8, 13, m[SIGMA8[o+12]], m[SIGMA8[o+13]]));
-    // unchecked(mix(vPtr, 3, 4, 9, 14, m[SIGMA8[o+14]], m[SIGMA8[o+15]]));
     unchecked(mix(vPtr, 0*8, 4*8, 8*8, 12*8, m[SIGMA8[o]], m[SIGMA8[o+1]]));
     unchecked(mix(vPtr, 1*8, 5*8, 9*8, 13*8, m[SIGMA8[o+2]], m[SIGMA8[o+3]]));
     unchecked(mix(vPtr, 2*8, 6*8, 10*8, 14*8, m[SIGMA8[o+4]], m[SIGMA8[o+5]]));
@@ -222,7 +197,7 @@ export function blake2b(input: Uint8Array, key: Uint8Array | null = null, outlen
 }
 
 /**
- * FRIENDLYCAPTCHA optimization only, does not reset ctx.t (global byte counter)
+ * FRIENDLYCAPTCHA optimization only, does not reset ctx.t (global byte counter), you need to do that yourself.
  * Assumes no key
  */
 // @ts-ignore
