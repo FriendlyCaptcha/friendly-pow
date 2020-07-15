@@ -3,11 +3,6 @@
 // Adapted from the reference implementation in RFC7693
 // Ported to Javascript by DC - https://github.com/dcposch
 
-// declare type u64 = number;
-// declare type i64 = number;
-// declare type u32 = number;
-
-
 export class Context {
   b: Uint8Array = new Uint8Array(128);
   h: Uint32Array = new Uint32Array(16);
@@ -39,13 +34,13 @@ export function ADD64AA(v: Uint32Array, a: u32, b: u32): void {
   v[a + 1] = ((a1 + b1 + c) >>> 0) as u32;
 
   // Alternative, faster in Firefox..
-//   const o0: u64 = (v[a] as u64) + (v[b] as u64);
-//   let o1: u64 = (v[a + 1] as u64) + (v[b + 1] as u64);
-//   if (o0 >= 0x100000000) {
-//     o1++;
-//   }
-//   v[a] = o0 as u32;
-//   v[a + 1] = o1 as u32;
+  //   const o0: u64 = (v[a] as u64) + (v[b] as u64);
+  //   let o1: u64 = (v[a + 1] as u64) + (v[b + 1] as u64);
+  //   if (o0 >= 0x100000000) {
+  //     o1++;
+  //   }
+  //   v[a] = o0 as u32;
+  //   v[a + 1] = o1 as u32;
 }
 
 // 64-bit unsigned addition
