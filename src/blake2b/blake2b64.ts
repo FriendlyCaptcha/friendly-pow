@@ -235,8 +235,9 @@ export function blake2bUpdate(ctx: Context, input: Uint8Array): void {
 // Returns a Uint8Array containing the message digest
 export function blake2bFinal(ctx: Context): Uint8Array {
   ctx.t += ctx.c; // mark last block offset
-  ctx.b.fill(0, ctx.c, 128);
-  ctx.c += 128;
+  const tc = 128 - ctx.c;
+  ctx.b.fill(0, ctx.c, tc);
+  ctx.c += tc;
   blake2bCompress(ctx, true, load<u32>(changetype<usize>(ctx.b))); // final block flag = 1
 
   // little endian convert and store
