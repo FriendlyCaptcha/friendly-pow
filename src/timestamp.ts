@@ -1,4 +1,4 @@
-function toU32(value: number): u32{ return (value as u32) >>> 0; }
+function toU32(value: number): u32 { return (value as u32) >>> 0; }
 
 /**
  * Unix timestamp in seconds since epoch as unsigned 32 bit integer right now.

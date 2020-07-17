@@ -1,4 +1,4 @@
-// Blake2B made assemblyscript compatible, adapted from (CC0 licensed): 
+// Blake2B made assemblyscript compatible, adapted from (CC0 licensed):
 // Blake2B in pure Javascript
 // Adapted from the reference implementation in RFC7693
 // Ported to Javascript by DC - https://github.com/dcposch
@@ -116,7 +116,7 @@ export function B2B_G_FAST(v: Uint32Array, m: Uint32Array, a: u32, b: u32, c: u3
   // We can just swap high and low here becaeuse its a shift by 32 bits
   vd0 = xor1 as u32;
   vd1 = xor0 as u32;
-  
+
   // ADD64AA(v, c, d);
   w0 = (vc0 + vd0);
   ww = ((vc0 & vd0) | (vc0 | vd0) & ~w0) >>> 31;
@@ -258,7 +258,7 @@ export function blake2bCompress(ctx: Context, last: bool): void {
   v[24] = ((v[24] as u64) ^ ctx.t) as u32;
   v[25] = ((v[25] as u64) ^ ((ctx.t as u64) / 0x100000000)) as u32;
   // high 64 bits not supported, offset may not be higher than 2**53-1
-  
+
   // last block flag set ?
   if (last) {
     v[28] = ~v[28];
@@ -272,14 +272,14 @@ export function blake2bCompress(ctx: Context, last: bool): void {
 
   // twelve rounds of mixing
   for (let i = 0; i < 12; i++) {
-    B2B_G_FAST(v, m, 0, 8, 16, 24, SIGMA82[i * 16 + 0], SIGMA82[i * 16 + 1]);
-    B2B_G_FAST(v, m, 2, 10, 18, 26, SIGMA82[i * 16 + 2], SIGMA82[i * 16 + 3]);
-    B2B_G_FAST(v, m, 4, 12, 20, 28, SIGMA82[i * 16 + 4], SIGMA82[i * 16 + 5]);
-    B2B_G_FAST(v, m, 6, 14, 22, 30, SIGMA82[i * 16 + 6], SIGMA82[i * 16 + 7]);
-    B2B_G_FAST(v, m, 0, 10, 20, 30, SIGMA82[i * 16 + 8], SIGMA82[i * 16 + 9]);
+    B2B_G_FAST(v, m, 0,  8, 16, 24, SIGMA82[i * 16 +  0], SIGMA82[i * 16 +  1]);
+    B2B_G_FAST(v, m, 2, 10, 18, 26, SIGMA82[i * 16 +  2], SIGMA82[i * 16 +  3]);
+    B2B_G_FAST(v, m, 4, 12, 20, 28, SIGMA82[i * 16 +  4], SIGMA82[i * 16 +  5]);
+    B2B_G_FAST(v, m, 6, 14, 22, 30, SIGMA82[i * 16 +  6], SIGMA82[i * 16 +  7]);
+    B2B_G_FAST(v, m, 0, 10, 20, 30, SIGMA82[i * 16 +  8], SIGMA82[i * 16 +  9]);
     B2B_G_FAST(v, m, 2, 12, 22, 24, SIGMA82[i * 16 + 10], SIGMA82[i * 16 + 11]);
     B2B_G_FAST(v, m, 4, 14, 16, 26, SIGMA82[i * 16 + 12], SIGMA82[i * 16 + 13]);
-    B2B_G_FAST(v, m, 6, 8, 18, 28, SIGMA82[i * 16 + 14], SIGMA82[i * 16 + 15]);
+    B2B_G_FAST(v, m, 6,  8, 18, 28, SIGMA82[i * 16 + 14], SIGMA82[i * 16 + 15]);
   }
 
   for (let i = 0; i < 16; i++) {
