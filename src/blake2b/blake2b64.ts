@@ -234,15 +234,10 @@ export function blake2bUpdate(ctx: Context, input: Uint8Array): void {
 // Completes a BLAKE2b streaming hash
 // Returns a Uint8Array containing the message digest
 export function blake2bFinal(ctx: Context): Uint8Array {
-  const b = ctx.b;
-  let c = ctx.c;
-  ctx.t += c; // mark last block offset
-
-  while (c < 128) { // fill up with zeros
-    unchecked(b[c++] = 0);
-  }
-  ctx.c = c;
-  blake2bCompress(ctx, true, load<u32>(changetype<usize>(b))); // final block flag = 1
+  ctx.t += ctx.c; // mark last block offset
+  ctx.b.fill(0, ctx.c, 128);
+  ctx.c += 128;
+  blake2bCompress(ctx, true, load<u32>(changetype<usize>(ctx.b))); // final block flag = 1
 
   // little endian convert and store
   // const u64a = new Uint64Array(ctx.outlen / 8);
