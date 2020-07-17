@@ -197,7 +197,9 @@ export function blake2bInit(outlen: u32, key: Uint8Array | null): Context {
   const h = ctx.h;
 
   // Initialize State vector h with IV
-  // unchecked(h[0] = BLAKE2B_IV_0);
+  // Mix key size (cbKeyLen) and desired hash length (cbHashLen) into h0
+  const keylen: u64 = key !== null ? key.length : 0;
+  unchecked(h[0] = BLAKE2B_IV_0 ^ 0x01010000 ^ (keylen << 8) ^ (outlen as u64));
   unchecked(h[1] = BLAKE2B_IV_1);
   unchecked(h[2] = BLAKE2B_IV_2);
   unchecked(h[3] = BLAKE2B_IV_3);
@@ -205,10 +207,6 @@ export function blake2bInit(outlen: u32, key: Uint8Array | null): Context {
   unchecked(h[5] = BLAKE2B_IV_5);
   unchecked(h[6] = BLAKE2B_IV_6);
   unchecked(h[7] = BLAKE2B_IV_7);
-
-  // Mix key size (cbKeyLen) and desired hash length (cbHashLen) into h0
-  const keylen: u64 = key !== null ? key.length : 0;
-  unchecked(h[0] = BLAKE2B_IV_0 ^ 0x01010000 ^ (keylen << 8) ^ (outlen as u64));
 
   // key the hash, if applicable
   if (key) {
@@ -278,7 +276,7 @@ export function blake2b(input: Uint8Array, key: Uint8Array | null = null, outlen
 export function blake2bResetForShortMessage(ctx: Context): void {
   const h = ctx.h;
   // Initialize State vector h with IV
-  // unchecked(h[0] = BLAKE2B_IV_0);
+  unchecked(h[0] = BLAKE2B_IV_0 ^ 0x01010000 ^ (ctx.outlen as u64));
   unchecked(h[1] = BLAKE2B_IV_1);
   unchecked(h[2] = BLAKE2B_IV_2);
   unchecked(h[3] = BLAKE2B_IV_3);
@@ -296,6 +294,4 @@ export function blake2bResetForShortMessage(ctx: Context): void {
   // ctx.b.set(input);
   // ctx.m.fill(0);
   // ctx.v.fill(0);
-
-  h[0] = BLAKE2B_IV_0 ^ 0x01010000 ^ (ctx.outlen as u64);
 }
