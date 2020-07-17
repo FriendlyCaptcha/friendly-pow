@@ -129,7 +129,7 @@ export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): vo
   }
 
   for (let i = 0; i < 8; i++) {
-    unchecked(h[i] = h[i] ^ v[i] ^ v[i + 8]);
+    unchecked(h[i] ^= v[i] ^ v[i + 8]);
   }
 }
 
