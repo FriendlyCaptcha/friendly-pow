@@ -61,36 +61,7 @@ export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): vo
   const h = ctx.h;
   const mPtr = changetype<usize>(m);
 
-  unchecked(ctx.v0 = h[0]);
-  unchecked(ctx.v1 = h[1]);
-  unchecked(ctx.v2 = h[2]);
-  unchecked(ctx.v3 = h[3]);
-  unchecked(ctx.v4 = h[4]);
-  unchecked(ctx.v5 = h[5]);
-  unchecked(ctx.v6 = h[6]);
-  unchecked(ctx.v7 = h[7]);
-
-  ctx.v8  = BLAKE2B_IV_0;
-  ctx.v9  = BLAKE2B_IV_1;
-  ctx.v10 = BLAKE2B_IV_2;
-  ctx.v11 = BLAKE2B_IV_3;
-  ctx.v12 = BLAKE2B_IV_4;
-  ctx.v13 = BLAKE2B_IV_5;
-  ctx.v14 = BLAKE2B_IV_6;
-  ctx.v15 = BLAKE2B_IV_7;
-
-  // low 64 bits of offset
-  // unchecked(v[12] = v[12] ^ ctx.t);
-  ctx.v12 ^= ctx.t;
-
   // high 64 bits not supported, offset may not be higher than 2**53-1
-
-  // last block flag set ?
-  if (last) {
-    // unchecked(v[14] = ~v[14]);
-    ctx.v14 = ~ctx.v14;
-  }
-
   // const u = Uint64Array.wrap(ctx.b.buffer);
   // get little-endian words
   for (let i = 0; i < 16 * 8; i += 8) {
@@ -98,153 +69,89 @@ export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): vo
     store<u64>(mPtr + i, load<u64>(bBufferPtr + i));
   }
 
-  let v0  = ctx.v0;
-  let v1  = ctx.v1;
-  let v2  = ctx.v2;
-  let v3  = ctx.v3;
-  let v4  = ctx.v4;
-  let v5  = ctx.v5;
-  let v6  = ctx.v6;
-  let v7  = ctx.v7;
-  let v8  = ctx.v8;
-  let v9  = ctx.v9;
-  let v10 = ctx.v10;
-  let v11 = ctx.v11;
-  let v12 = ctx.v12;
-  let v13 = ctx.v13;
-  let v14 = ctx.v14;
-  let v15 = ctx.v15;
+  let v0  = unchecked(h[0]);
+  let v1  = unchecked(h[1]);
+  let v2  = unchecked(h[2]);
+  let v3  = unchecked(h[3]);
+  let v4  = unchecked(h[4]);
+  let v5  = unchecked(h[5]);
+  let v6  = unchecked(h[6]);
+  let v7  = unchecked(h[7]);
+  let v8  = BLAKE2B_IV_0;
+  let v9  = BLAKE2B_IV_1;
+  let v10 = BLAKE2B_IV_2;
+  let v11 = BLAKE2B_IV_3;
+  let v12 = BLAKE2B_IV_4 ^ ctx.t; // low 64 bits of offset
+  let v13 = BLAKE2B_IV_5;
+  let v14 = last ? ~BLAKE2B_IV_6 : BLAKE2B_IV_6; // last block flag set ?
+  let v15 = BLAKE2B_IV_7;
 
-  let va: u64, vb: u64, vc: u64, vd: u64, x: u64, y: u64;
+  let x: u64, y: u64;
 
   for (let o = 0; o < 12 * 16; o += 16) {
     // mix(vPtr, 0*8, 4*8,  8*8, 12*8, m[SIGMA8[o +  0]], m[SIGMA8[o +  1]])
-    va = v0;
-    vb = v4;
-    vc = v8;
-    vd = v12;
     x = unchecked(m[SIGMA8[o + 0]]);
     y = unchecked(m[SIGMA8[o + 1]]);
-    va += vb + x; vd = rotr(vd ^ va, 32);
-    vc += vd;     vb = rotr(vb ^ vc, 24);
-    va += vb + y; vd = rotr(vd ^ va, 16);
-    vc += vd;     vb = rotr(vb ^ vc, 63);
-    v0  = va;
-    v4  = vb;
-    v8  = vc;
-    v12 = vd;
+    v0 += v4 + x; v12 = rotr(v12 ^ v0, 32);
+    v8 += v12;     v4 = rotr( v4 ^ v8, 24);
+    v0 += v4 + y; v12 = rotr(v12 ^ v0, 16);
+    v8 += v12;     v4 = rotr( v4 ^ v8, 63);
 
     // mix(vPtr, 1*8, 5*8,  9*8, 13*8, m[SIGMA8[o +  2]], m[SIGMA8[o +  3]])
-    va = v1;
-    vb = v5;
-    vc = v9;
-    vd = v13;
     x = unchecked(m[SIGMA8[o + 2]]);
     y = unchecked(m[SIGMA8[o + 3]]);
-    va += vb + x; vd = rotr(vd ^ va, 32);
-    vc += vd;     vb = rotr(vb ^ vc, 24);
-    va += vb + y; vd = rotr(vd ^ va, 16);
-    vc += vd;     vb = rotr(vb ^ vc, 63);
-    v1  = va;
-    v5  = vb;
-    v9  = vc;
-    v13 = vd;
+    v1 += v5 + x; v13 = rotr(v13 ^ v1, 32);
+    v9 += v13;     v5 = rotr( v5 ^ v9, 24);
+    v1 += v5 + y; v13 = rotr(v13 ^ v1, 16);
+    v9 += v13;     v5 = rotr( v5 ^ v9, 63);
 
     // mix(vPtr, 2*8, 6*8, 10*8, 14*8, m[SIGMA8[o +  4]], m[SIGMA8[o +  5]])
-    va = v2;
-    vb = v6;
-    vc = v10;
-    vd = v14;
     x = unchecked(m[SIGMA8[o + 4]]);
     y = unchecked(m[SIGMA8[o + 5]]);
-    va += vb + x; vd = rotr(vd ^ va, 32);
-    vc += vd;     vb = rotr(vb ^ vc, 24);
-    va += vb + y; vd = rotr(vd ^ va, 16);
-    vc += vd;     vb = rotr(vb ^ vc, 63);
-    v2  = va;
-    v6  = vb;
-    v10 = vc;
-    v14 = vd;
+    v2  +=  v6 + x; v14 = rotr(v14 ^  v2, 32);
+    v10 += v14;      v6 = rotr( v6 ^ v10, 24);
+    v2  +=  v6 + y; v14 = rotr(v14 ^  v2, 16);
+    v10 += v14;      v6 = rotr( v6 ^ v10, 63);
 
     // mix(vPtr, 3*8, 7*8, 11*8, 15*8, m[SIGMA8[o +  6]], m[SIGMA8[o +  7]])
-    va = v3;
-    vb = v7;
-    vc = v11;
-    vd = v15;
     x = unchecked(m[SIGMA8[o + 6]]);
     y = unchecked(m[SIGMA8[o + 7]]);
-    va += vb + x; vd = rotr(vd ^ va, 32);
-    vc += vd;     vb = rotr(vb ^ vc, 24);
-    va += vb + y; vd = rotr(vd ^ va, 16);
-    vc += vd;     vb = rotr(vb ^ vc, 63);
-    v3  = va;
-    v7  = vb;
-    v11 = vc;
-    v15 = vd;
+    v3  +=  v7 + x; v15 = rotr(v15 ^  v3, 32);
+    v11 += v15;      v7 = rotr( v7 ^ v11, 24);
+    v3  +=  v7 + y; v15 = rotr(v15 ^  v3, 16);
+    v11 += v15;      v7 = rotr( v7 ^ v11, 63);
 
     // mix(vPtr, 0*8, 5*8, 10*8, 15*8, m[SIGMA8[o +  8]], m[SIGMA8[o +  9]])
-    va = v0;
-    vb = v5;
-    vc = v10;
-    vd = v15;
     x = unchecked(m[SIGMA8[o + 8]]);
     y = unchecked(m[SIGMA8[o + 9]]);
-    va += vb + x; vd = rotr(vd ^ va, 32);
-    vc += vd;     vb = rotr(vb ^ vc, 24);
-    va += vb + y; vd = rotr(vd ^ va, 16);
-    vc += vd;     vb = rotr(vb ^ vc, 63);
-    v0  = va;
-    v5  = vb;
-    v10 = vc;
-    v15 = vd;
+    v0  +=  v5 + x; v15 = rotr(v15 ^  v0, 32);
+    v10 += v15;      v5 = rotr( v5 ^ v10, 24);
+    v0  +=  v5 + y; v15 = rotr(v15 ^  v0, 16);
+    v10 += v15;      v5 = rotr( v5 ^ v10, 63);
 
     // mix(vPtr, 1*8, 6*8, 11*8, 12*8, m[SIGMA8[o + 10]], m[SIGMA8[o + 11]])
-    va = v1;
-    vb = v6;
-    vc = v11;
-    vd = v12;
     x = unchecked(m[SIGMA8[o + 10]]);
     y = unchecked(m[SIGMA8[o + 11]]);
-    va += vb + x; vd = rotr(vd ^ va, 32);
-    vc += vd;     vb = rotr(vb ^ vc, 24);
-    va += vb + y; vd = rotr(vd ^ va, 16);
-    vc += vd;     vb = rotr(vb ^ vc, 63);
-    v1  = va;
-    v6  = vb;
-    v11 = vc;
-    v12 = vd;
+    v1  +=  v6 + x; v12 = rotr(v12 ^  v1, 32);
+    v11 += v12;      v6 = rotr( v6 ^ v11, 24);
+    v1  +=  v6 + y; v12 = rotr(v12 ^  v1, 16);
+    v11 += v12;      v6 = rotr( v6 ^ v11, 63);
 
     // mix(vPtr, 2*8, 7*8,  8*8, 13*8, m[SIGMA8[o + 12]], m[SIGMA8[o + 13]])
-    va = v2;
-    vb = v7;
-    vc = v8;
-    vd = v13;
     x = unchecked(m[SIGMA8[o + 12]]);
     y = unchecked(m[SIGMA8[o + 13]]);
-    va += vb + x; vd = rotr(vd ^ va, 32);
-    vc += vd;     vb = rotr(vb ^ vc, 24);
-    va += vb + y; vd = rotr(vd ^ va, 16);
-    vc += vd;     vb = rotr(vb ^ vc, 63);
-    v2  = va;
-    v7  = vb;
-    v8  = vc;
-    v13 = vd;
+    v2 +=  v7 + x; v13 = rotr(v13 ^ v2, 32);
+    v8 += v13;      v7 = rotr( v7 ^ v8, 24);
+    v2 +=  v7 + y; v13 = rotr(v13 ^ v2, 16);
+    v8 += v13;      v7 = rotr( v7 ^ v8, 63);
 
     // mix(vPtr, 3*8, 4*8,  9*8, 14*8, m[SIGMA8[o + 14]], m[SIGMA8[o + 15]])
-    va = v3;
-    vb = v4;
-    vc = v9;
-    vd = v14;
     x = unchecked(m[SIGMA8[o + 14]]);
     y = unchecked(m[SIGMA8[o + 15]]);
-    va += vb + x; vd = rotr(vd ^ va, 32);
-    vc += vd;     vb = rotr(vb ^ vc, 24);
-    va += vb + y; vd = rotr(vd ^ va, 16);
-    vc += vd;     vb = rotr(vb ^ vc, 63);
-    v3  = va;
-    v4  = vb;
-    v9  = vc;
-    v14 = vd;
+    v3 +=  v4 + x; v14 = rotr(v14 ^ v3, 32);
+    v9 += v14;      v4 = rotr( v4 ^ v9, 24);
+    v3 +=  v4 + y; v14 = rotr(v14 ^ v3, 16);
+    v9 += v14;      v4 = rotr( v4 ^ v9, 63);
   }
 
   unchecked(h[0] ^= v0 ^  v8);
