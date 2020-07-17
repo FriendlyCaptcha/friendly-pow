@@ -35,6 +35,7 @@ export function solveBlake2bEfficient(input: Uint8Array, threshold: u32, n: u32)
     const bufferPtr = load<u32>(arrayPtr);
 
     const ctx = new Context(HASH_SIZE_BYTES);
+    const h = ctx.h;
     ctx.t = CHALLENGE_SIZE_BYTES;
 
     const start = load<u32>(bufferPtr + 124);
@@ -46,8 +47,8 @@ export function solveBlake2bEfficient(input: Uint8Array, threshold: u32, n: u32)
         blake2bResetForShortMessage(ctx);
         blake2bCompress(ctx, true, bufferPtr);
 
-        if ((unchecked(ctx.h[0]) as u32) < threshold) {
-            return Uint8Array.wrap(ctx.h.buffer);
+        if ((unchecked(h[0]) as u32) < threshold) {
+            return Uint8Array.wrap(h.buffer);
         }
     }
     // No solution found signal.
