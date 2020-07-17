@@ -40,7 +40,7 @@ const BLAKE2B_IV_5: u64 = 0x9b05688c2b3e6c1f;
 const BLAKE2B_IV_6: u64 = 0x1f83d9abfb41bd6b;
 const BLAKE2B_IV_7: u64 = 0x5be0cd19137e2179;
 
-const SIGMA8: u8[] = [
+const SIGMA8 = memory.data<u8>([
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
   14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3,
   11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4,
@@ -53,7 +53,7 @@ const SIGMA8: u8[] = [
   10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0,
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
   14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3
-];
+]);
 
 // Compression function. 'last' flag indicates last block.
 export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): void {
@@ -89,65 +89,66 @@ export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): vo
   let x: u64, y: u64;
 
   for (let o = 0; o < 12 * 16; o += 16) {
+    const sigmaPtr = SIGMA8 + o;
     // mix(vPtr, 0*8, 4*8,  8*8, 12*8, m[SIGMA8[o +  0]], m[SIGMA8[o +  1]])
-    x = unchecked(m[SIGMA8[o + 0]]);
-    y = unchecked(m[SIGMA8[o + 1]]);
+    x = unchecked(m[load<u8>(sigmaPtr + 0)]);
+    y = unchecked(m[load<u8>(sigmaPtr + 1)]);
     v0 += v4 + x; v12 = rotr(v12 ^ v0, 32);
     v8 += v12;     v4 = rotr( v4 ^ v8, 24);
     v0 += v4 + y; v12 = rotr(v12 ^ v0, 16);
     v8 += v12;     v4 = rotr( v4 ^ v8, 63);
 
     // mix(vPtr, 1*8, 5*8,  9*8, 13*8, m[SIGMA8[o +  2]], m[SIGMA8[o +  3]])
-    x = unchecked(m[SIGMA8[o + 2]]);
-    y = unchecked(m[SIGMA8[o + 3]]);
+    x = unchecked(m[load<u8>(sigmaPtr + 2)]);
+    y = unchecked(m[load<u8>(sigmaPtr + 3)]);
     v1 += v5 + x; v13 = rotr(v13 ^ v1, 32);
     v9 += v13;     v5 = rotr( v5 ^ v9, 24);
     v1 += v5 + y; v13 = rotr(v13 ^ v1, 16);
     v9 += v13;     v5 = rotr( v5 ^ v9, 63);
 
     // mix(vPtr, 2*8, 6*8, 10*8, 14*8, m[SIGMA8[o +  4]], m[SIGMA8[o +  5]])
-    x = unchecked(m[SIGMA8[o + 4]]);
-    y = unchecked(m[SIGMA8[o + 5]]);
+    x = unchecked(m[load<u8>(sigmaPtr + 4)]);
+    y = unchecked(m[load<u8>(sigmaPtr + 5)]);
     v2  +=  v6 + x; v14 = rotr(v14 ^  v2, 32);
     v10 += v14;      v6 = rotr( v6 ^ v10, 24);
     v2  +=  v6 + y; v14 = rotr(v14 ^  v2, 16);
     v10 += v14;      v6 = rotr( v6 ^ v10, 63);
 
     // mix(vPtr, 3*8, 7*8, 11*8, 15*8, m[SIGMA8[o +  6]], m[SIGMA8[o +  7]])
-    x = unchecked(m[SIGMA8[o + 6]]);
-    y = unchecked(m[SIGMA8[o + 7]]);
+    x = unchecked(m[load<u8>(sigmaPtr + 6)]);
+    y = unchecked(m[load<u8>(sigmaPtr + 7)]);
     v3  +=  v7 + x; v15 = rotr(v15 ^  v3, 32);
     v11 += v15;      v7 = rotr( v7 ^ v11, 24);
     v3  +=  v7 + y; v15 = rotr(v15 ^  v3, 16);
     v11 += v15;      v7 = rotr( v7 ^ v11, 63);
 
     // mix(vPtr, 0*8, 5*8, 10*8, 15*8, m[SIGMA8[o +  8]], m[SIGMA8[o +  9]])
-    x = unchecked(m[SIGMA8[o + 8]]);
-    y = unchecked(m[SIGMA8[o + 9]]);
+    x = unchecked(m[load<u8>(sigmaPtr + 8)]);
+    y = unchecked(m[load<u8>(sigmaPtr + 9)]);
     v0  +=  v5 + x; v15 = rotr(v15 ^  v0, 32);
     v10 += v15;      v5 = rotr( v5 ^ v10, 24);
     v0  +=  v5 + y; v15 = rotr(v15 ^  v0, 16);
     v10 += v15;      v5 = rotr( v5 ^ v10, 63);
 
     // mix(vPtr, 1*8, 6*8, 11*8, 12*8, m[SIGMA8[o + 10]], m[SIGMA8[o + 11]])
-    x = unchecked(m[SIGMA8[o + 10]]);
-    y = unchecked(m[SIGMA8[o + 11]]);
+    x = unchecked(m[load<u8>(sigmaPtr + 10)]);
+    y = unchecked(m[load<u8>(sigmaPtr + 11)]);
     v1  +=  v6 + x; v12 = rotr(v12 ^  v1, 32);
     v11 += v12;      v6 = rotr( v6 ^ v11, 24);
     v1  +=  v6 + y; v12 = rotr(v12 ^  v1, 16);
     v11 += v12;      v6 = rotr( v6 ^ v11, 63);
 
     // mix(vPtr, 2*8, 7*8,  8*8, 13*8, m[SIGMA8[o + 12]], m[SIGMA8[o + 13]])
-    x = unchecked(m[SIGMA8[o + 12]]);
-    y = unchecked(m[SIGMA8[o + 13]]);
+    x = unchecked(m[load<u8>(sigmaPtr + 12)]);
+    y = unchecked(m[load<u8>(sigmaPtr + 13)]);
     v2 +=  v7 + x; v13 = rotr(v13 ^ v2, 32);
     v8 += v13;      v7 = rotr( v7 ^ v8, 24);
     v2 +=  v7 + y; v13 = rotr(v13 ^ v2, 16);
     v8 += v13;      v7 = rotr( v7 ^ v8, 63);
 
     // mix(vPtr, 3*8, 4*8,  9*8, 14*8, m[SIGMA8[o + 14]], m[SIGMA8[o + 15]])
-    x = unchecked(m[SIGMA8[o + 14]]);
-    y = unchecked(m[SIGMA8[o + 15]]);
+    x = unchecked(m[load<u8>(sigmaPtr + 14)]);
+    y = unchecked(m[load<u8>(sigmaPtr + 15)]);
     v3 +=  v4 + x; v14 = rotr(v14 ^ v3, 32);
     v9 += v14;      v4 = rotr( v4 ^ v9, 24);
     v3 +=  v4 + y; v14 = rotr(v14 ^ v3, 16);
