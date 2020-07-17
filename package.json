@@ -15,7 +15,7 @@
     "wrap:as": "npm run wrap:as:untouched && npm run wrap:as:optimized",
     "build:ts": "tsc",
     "build": "npm run prebuild && npm run build:as:optimized && npm run wrap:as:optimized && npm run build:ts && cp package.json dist/package.json",
-    "test": "asp --verbose && jest --coverage",
+    "test": "npm run test:as && npm run test:ts",
     "test:as": "asp --verbose",
     "test:ts": "jest --coverage",
     "prepublishOnly": "echo \"Error: Don't run 'npm publish' in root. Use 'npm run dist' instead.\" && exit 1",
