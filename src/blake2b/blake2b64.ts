@@ -8,39 +8,27 @@ export class Context {
   t: u64 = 0; // input count
   c: u32 = 0; // pointer within buffer
 
-  v: StaticArray<u64> = new StaticArray<u64>(16);
+  v0: u64 = 0;
+  v1: u64 = 0;
+  v2: u64 = 0;
+  v3: u64 = 0;
+  v4: u64 = 0;
+  v5: u64 = 0;
+  v6: u64 = 0;
+  v7: u64 = 0;
+  v8: u64 = 0;
+  v9: u64 = 0;
+  v10: u64 = 0;
+  v11: u64 = 0;
+  v12: u64 = 0;
+  v13: u64 = 0;
+  v14: u64 = 0;
+  v15: u64 = 0;
+
   m: StaticArray<u64> = new StaticArray<u64>(16);
 
   constructor(public outlen: u32) {}
 }
-
-// G Mixing function
-// @ts-ignore
-@inline
-function mix(v: usize, a: usize, b: usize, c: usize, d: usize, x: u64, y: u64): void {
-  let va = load<u64>(v + a);
-  let vb = load<u64>(v + b);
-  let vc = load<u64>(v + c);
-  let vd = load<u64>(v + d);
-
-  va += vb + x; // with input
-  vd = rotr(vd ^ va, 32);
-
-  vc += vd; // no input
-  vb = rotr(vb ^ vc, 24);
-
-  va += vb + y; // with input
-  vd = rotr(vd ^ va, 16);
-
-  vc += vd; // no input
-  vb = rotr(vb ^ vc, 63);
-
-  store<u64>(v + a, va);
-  store<u64>(v + b, vb);
-  store<u64>(v + c, vc);
-  store<u64>(v + d, vd);
-}
-
 
 // Initialization Vector
 const BLAKE2B_IV_0: u64 = 0x6a09e667f3bcc908;
@@ -69,39 +57,38 @@ const SIGMA8: u8[] = [
 
 // Compression function. 'last' flag indicates last block.
 export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): void {
-  const v = ctx.v;
   const m = ctx.m;
   const h = ctx.h;
-  const vPtr = changetype<usize>(v);
   const mPtr = changetype<usize>(m);
 
-  unchecked(v[ 0] = h[0]);
-  unchecked(v[ 1] = h[1]);
-  unchecked(v[ 2] = h[2]);
-  unchecked(v[ 3] = h[3]);
-  unchecked(v[ 4] = h[4]);
-  unchecked(v[ 5] = h[5]);
-  unchecked(v[ 6] = h[6]);
-  unchecked(v[ 7] = h[7]);
-  unchecked(v[ 8] = BLAKE2B_IV_0);
-  unchecked(v[ 9] = BLAKE2B_IV_1);
-  unchecked(v[10] = BLAKE2B_IV_2);
-  unchecked(v[11] = BLAKE2B_IV_3);
-  unchecked(v[12] = BLAKE2B_IV_4);
-  unchecked(v[13] = BLAKE2B_IV_5);
-  unchecked(v[14] = BLAKE2B_IV_6);
-  unchecked(v[15] = BLAKE2B_IV_7);
+  unchecked(ctx.v0 = h[0]);
+  unchecked(ctx.v1 = h[1]);
+  unchecked(ctx.v2 = h[2]);
+  unchecked(ctx.v3 = h[3]);
+  unchecked(ctx.v4 = h[4]);
+  unchecked(ctx.v5 = h[5]);
+  unchecked(ctx.v6 = h[6]);
+  unchecked(ctx.v7 = h[7]);
+
+  ctx.v8  = BLAKE2B_IV_0;
+  ctx.v9  = BLAKE2B_IV_1;
+  ctx.v10 = BLAKE2B_IV_2;
+  ctx.v11 = BLAKE2B_IV_3;
+  ctx.v12 = BLAKE2B_IV_4;
+  ctx.v13 = BLAKE2B_IV_5;
+  ctx.v14 = BLAKE2B_IV_6;
+  ctx.v15 = BLAKE2B_IV_7;
 
   // low 64 bits of offset
   // unchecked(v[12] = v[12] ^ ctx.t);
-  store<u64>(vPtr, load<u64>(vPtr, 12*8) ^ ctx.t, 12*8);
+  ctx.v12 ^= ctx.t;
 
   // high 64 bits not supported, offset may not be higher than 2**53-1
 
   // last block flag set ?
   if (last) {
     // unchecked(v[14] = ~v[14]);
-    store<u64>(vPtr, ~load<u64>(vPtr, 14*8), 14*8);
+    ctx.v14 = ~ctx.v14;
   }
 
   // const u = Uint64Array.wrap(ctx.b.buffer);
@@ -111,23 +98,181 @@ export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): vo
     store<u64>(mPtr + i, load<u64>(bBufferPtr + i));
   }
 
-  // twelve rounds of mixing
-  // for (let i = 0; i < 12; i++) {
-  //   const o:u32 = i * 16;
+  let v0  = ctx.v0;
+  let v1  = ctx.v1;
+  let v2  = ctx.v2;
+  let v3  = ctx.v3;
+  let v4  = ctx.v4;
+  let v5  = ctx.v5;
+  let v6  = ctx.v6;
+  let v7  = ctx.v7;
+  let v8  = ctx.v8;
+  let v9  = ctx.v9;
+  let v10 = ctx.v10;
+  let v11 = ctx.v11;
+  let v12 = ctx.v12;
+  let v13 = ctx.v13;
+  let v14 = ctx.v14;
+  let v15 = ctx.v15;
+
+  let va: u64, vb: u64, vc: u64, vd: u64, x: u64, y: u64;
+
   for (let o = 0; o < 12 * 16; o += 16) {
-    unchecked(mix(vPtr, 0*8, 4*8,  8*8, 12*8, m[SIGMA8[o +  0]], m[SIGMA8[o +  1]]));
-    unchecked(mix(vPtr, 1*8, 5*8,  9*8, 13*8, m[SIGMA8[o +  2]], m[SIGMA8[o +  3]]));
-    unchecked(mix(vPtr, 2*8, 6*8, 10*8, 14*8, m[SIGMA8[o +  4]], m[SIGMA8[o +  5]]));
-    unchecked(mix(vPtr, 3*8, 7*8, 11*8, 15*8, m[SIGMA8[o +  6]], m[SIGMA8[o +  7]]));
-    unchecked(mix(vPtr, 0*8, 5*8, 10*8, 15*8, m[SIGMA8[o +  8]], m[SIGMA8[o +  9]]));
-    unchecked(mix(vPtr, 1*8, 6*8, 11*8, 12*8, m[SIGMA8[o + 10]], m[SIGMA8[o + 11]]));
-    unchecked(mix(vPtr, 2*8, 7*8,  8*8, 13*8, m[SIGMA8[o + 12]], m[SIGMA8[o + 13]]));
-    unchecked(mix(vPtr, 3*8, 4*8,  9*8, 14*8, m[SIGMA8[o + 14]], m[SIGMA8[o + 15]]));
+    // mix(vPtr, 0*8, 4*8,  8*8, 12*8, m[SIGMA8[o +  0]], m[SIGMA8[o +  1]])
+    va = v0;
+    vb = v4;
+    vc = v8;
+    vd = v12;
+    x = unchecked(m[SIGMA8[o + 0]]);
+    y = unchecked(m[SIGMA8[o + 1]]);
+    va += vb + x; vd = rotr(vd ^ va, 32);
+    vc += vd;     vb = rotr(vb ^ vc, 24);
+    va += vb + y; vd = rotr(vd ^ va, 16);
+    vc += vd;     vb = rotr(vb ^ vc, 63);
+    v0  = va;
+    v4  = vb;
+    v8  = vc;
+    v12 = vd;
+
+    // mix(vPtr, 1*8, 5*8,  9*8, 13*8, m[SIGMA8[o +  2]], m[SIGMA8[o +  3]])
+    va = v1;
+    vb = v5;
+    vc = v9;
+    vd = v13;
+    x = unchecked(m[SIGMA8[o + 2]]);
+    y = unchecked(m[SIGMA8[o + 3]]);
+    va += vb + x; vd = rotr(vd ^ va, 32);
+    vc += vd;     vb = rotr(vb ^ vc, 24);
+    va += vb + y; vd = rotr(vd ^ va, 16);
+    vc += vd;     vb = rotr(vb ^ vc, 63);
+    v1  = va;
+    v5  = vb;
+    v9  = vc;
+    v13 = vd;
+
+    // mix(vPtr, 2*8, 6*8, 10*8, 14*8, m[SIGMA8[o +  4]], m[SIGMA8[o +  5]])
+    va = v2;
+    vb = v6;
+    vc = v10;
+    vd = v14;
+    x = unchecked(m[SIGMA8[o + 4]]);
+    y = unchecked(m[SIGMA8[o + 5]]);
+    va += vb + x; vd = rotr(vd ^ va, 32);
+    vc += vd;     vb = rotr(vb ^ vc, 24);
+    va += vb + y; vd = rotr(vd ^ va, 16);
+    vc += vd;     vb = rotr(vb ^ vc, 63);
+    v2  = va;
+    v6  = vb;
+    v10 = vc;
+    v14 = vd;
+
+    // mix(vPtr, 3*8, 7*8, 11*8, 15*8, m[SIGMA8[o +  6]], m[SIGMA8[o +  7]])
+    va = v3;
+    vb = v7;
+    vc = v11;
+    vd = v15;
+    x = unchecked(m[SIGMA8[o + 6]]);
+    y = unchecked(m[SIGMA8[o + 7]]);
+    va += vb + x; vd = rotr(vd ^ va, 32);
+    vc += vd;     vb = rotr(vb ^ vc, 24);
+    va += vb + y; vd = rotr(vd ^ va, 16);
+    vc += vd;     vb = rotr(vb ^ vc, 63);
+    v3  = va;
+    v7  = vb;
+    v11 = vc;
+    v15 = vd;
+
+    // mix(vPtr, 0*8, 5*8, 10*8, 15*8, m[SIGMA8[o +  8]], m[SIGMA8[o +  9]])
+    va = v0;
+    vb = v5;
+    vc = v10;
+    vd = v15;
+    x = unchecked(m[SIGMA8[o + 8]]);
+    y = unchecked(m[SIGMA8[o + 9]]);
+    va += vb + x; vd = rotr(vd ^ va, 32);
+    vc += vd;     vb = rotr(vb ^ vc, 24);
+    va += vb + y; vd = rotr(vd ^ va, 16);
+    vc += vd;     vb = rotr(vb ^ vc, 63);
+    v0  = va;
+    v5  = vb;
+    v10 = vc;
+    v15 = vd;
+
+    // mix(vPtr, 1*8, 6*8, 11*8, 12*8, m[SIGMA8[o + 10]], m[SIGMA8[o + 11]])
+    va = v1;
+    vb = v6;
+    vc = v11;
+    vd = v12;
+    x = unchecked(m[SIGMA8[o + 10]]);
+    y = unchecked(m[SIGMA8[o + 11]]);
+    va += vb + x; vd = rotr(vd ^ va, 32);
+    vc += vd;     vb = rotr(vb ^ vc, 24);
+    va += vb + y; vd = rotr(vd ^ va, 16);
+    vc += vd;     vb = rotr(vb ^ vc, 63);
+    v1  = va;
+    v6  = vb;
+    v11 = vc;
+    v12 = vd;
+
+    // mix(vPtr, 2*8, 7*8,  8*8, 13*8, m[SIGMA8[o + 12]], m[SIGMA8[o + 13]])
+    va = v2;
+    vb = v7;
+    vc = v8;
+    vd = v13;
+    x = unchecked(m[SIGMA8[o + 12]]);
+    y = unchecked(m[SIGMA8[o + 13]]);
+    va += vb + x; vd = rotr(vd ^ va, 32);
+    vc += vd;     vb = rotr(vb ^ vc, 24);
+    va += vb + y; vd = rotr(vd ^ va, 16);
+    vc += vd;     vb = rotr(vb ^ vc, 63);
+    v2  = va;
+    v7  = vb;
+    v8  = vc;
+    v13 = vd;
+
+    // mix(vPtr, 3*8, 4*8,  9*8, 14*8, m[SIGMA8[o + 14]], m[SIGMA8[o + 15]])
+    va = v3;
+    vb = v4;
+    vc = v9;
+    vd = v14;
+    x = unchecked(m[SIGMA8[o + 14]]);
+    y = unchecked(m[SIGMA8[o + 15]]);
+    va += vb + x; vd = rotr(vd ^ va, 32);
+    vc += vd;     vb = rotr(vb ^ vc, 24);
+    va += vb + y; vd = rotr(vd ^ va, 16);
+    vc += vd;     vb = rotr(vb ^ vc, 63);
+    v3  = va;
+    v4  = vb;
+    v9  = vc;
+    v14 = vd;
   }
 
-  for (let i = 0; i < 8; i++) {
-    unchecked(h[i] ^= v[i] ^ v[i + 8]);
-  }
+  unchecked(h[0] ^= v0 ^  v8);
+  unchecked(h[1] ^= v1 ^  v9);
+  unchecked(h[2] ^= v2 ^ v10);
+  unchecked(h[3] ^= v3 ^ v11);
+
+  unchecked(h[4] ^= v4 ^ v12);
+  unchecked(h[5] ^= v5 ^ v13);
+  unchecked(h[6] ^= v6 ^ v14);
+  unchecked(h[7] ^= v7 ^ v15);
+
+  ctx.v0  = v0;
+  ctx.v1  = v1;
+  ctx.v2  = v2;
+  ctx.v3  = v3;
+  ctx.v4  = v4;
+  ctx.v5  = v5;
+  ctx.v6  = v6;
+  ctx.v7  = v7;
+  ctx.v8  = v8;
+  ctx.v9  = v9;
+  ctx.v10 = v10;
+  ctx.v11 = v11;
+  ctx.v12 = v12;
+  ctx.v13 = v13;
+  ctx.v14 = v14;
+  ctx.v15 = v15;
 }
 
 // Creates a BLAKE2b hashing context
