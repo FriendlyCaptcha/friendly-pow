@@ -7,14 +7,11 @@ export class Context {
   h: Uint64Array = new Uint64Array(8);
   t: u64 = 0; // input count
   c: u32 = 0; // pointer within buffer
-  outlen: u32;
 
   v: StaticArray<u64> = new StaticArray<u64>(16);
   m: StaticArray<u64> = new StaticArray<u64>(16);
 
-  constructor(outlen: u32) {
-    this.outlen = outlen;
-  }
+  constructor(public outlen: u32) {}
 }
 
 // G Mixing function
@@ -75,8 +72,8 @@ export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): vo
   const v = ctx.v;
   const m = ctx.m;
   const h = ctx.h;
-  const vPtr = changetype<usize>(ctx.v);
-  const mPtr = changetype<usize>(ctx.m);
+  const vPtr = changetype<usize>(v);
+  const mPtr = changetype<usize>(m);
 
   unchecked(v[ 0] = h[0]);
   unchecked(v[ 1] = h[1]);
@@ -109,9 +106,9 @@ export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): vo
 
   // const u = Uint64Array.wrap(ctx.b.buffer);
   // get little-endian words
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 16 * 8; i += 8) {
     //m[i] = u[i]
-    store<u64>(mPtr + (i << 3), load<u64>(bBufferPtr + (i << 3)));
+    store<u64>(mPtr + i, load<u64>(bBufferPtr + i));
   }
 
   // twelve rounds of mixing
