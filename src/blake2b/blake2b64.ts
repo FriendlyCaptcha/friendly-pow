@@ -236,7 +236,7 @@ export function blake2bUpdate(ctx: Context, input: Uint8Array): void {
 // Completes a BLAKE2b streaming hash
 // Returns a Uint8Array containing the message digest
 export function blake2bFinal(ctx: Context): Uint8Array {
-  let b = ctx.b;
+  const b = ctx.b;
   let c = ctx.c;
   ctx.t += c; // mark last block offset
 

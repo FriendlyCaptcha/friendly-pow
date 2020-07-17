@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
+
 import * as b32 from "../src/blake2b/blake2b";
 import * as b64 from "../src/blake2b/blake2b64";
 import {fromHexString} from "./blake2b.test";

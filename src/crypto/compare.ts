@@ -1,6 +1,6 @@
 export function constantTimeStringEquality(a: string, b: string) {
-    let alen = a.length;
-    let blen = b.length;
+    const alen = a.length;
+    const blen = b.length;
     let mismatch = alen !== blen ? 1 : 0;
     if (alen !== blen) {
         b = a;
