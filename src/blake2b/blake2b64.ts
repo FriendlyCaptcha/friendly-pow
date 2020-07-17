@@ -252,7 +252,7 @@ export function blake2bFinal(ctx: Context): Uint8Array {
   //   unchecked(u64a[i] = ctx.h[i]);
   // }
 
-  return Uint8Array.wrap(ctx.h.buffer.slice(0, ctx.outlen));
+  return Uint8Array.wrap(ctx.h.buffer, 0, ctx.outlen);
 }
 
 // Computes the BLAKE2B hash of a string or byte array, and returns a Uint8Array
