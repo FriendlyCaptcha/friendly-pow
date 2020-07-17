@@ -46,12 +46,14 @@ function mix(v: usize, a: usize, b: usize, c: usize, d: usize, x: u64, y: u64): 
 
 
 // Initialization Vector
-const BLAKE2B_IV: u64[] = [
-  0x6a09e667f3bcc908, 0xbb67ae8584caa73b,
-  0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
-  0x510e527fade682d1, 0x9b05688c2b3e6c1f,
-  0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
-];
+const BLAKE2B_IV_0: u64 = 0x6a09e667f3bcc908;
+const BLAKE2B_IV_1: u64 = 0xbb67ae8584caa73b;
+const BLAKE2B_IV_2: u64 = 0x3c6ef372fe94f82b;
+const BLAKE2B_IV_3: u64 = 0xa54ff53a5f1d36f1;
+const BLAKE2B_IV_4: u64 = 0x510e527fade682d1;
+const BLAKE2B_IV_5: u64 = 0x9b05688c2b3e6c1f;
+const BLAKE2B_IV_6: u64 = 0x1f83d9abfb41bd6b;
+const BLAKE2B_IV_7: u64 = 0x5be0cd19137e2179;
 
 const SIGMA8: u8[] = [
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
@@ -72,14 +74,26 @@ const SIGMA8: u8[] = [
 export function blake2bCompress(ctx: Context, last: bool, bBufferPtr: usize): void {
   const v = ctx.v;
   const m = ctx.m;
+  const h = ctx.h;
   const vPtr = changetype<usize>(ctx.v);
   const mPtr = changetype<usize>(ctx.m);
 
-
-  for (let i = 0; i < 8; i++) {
-    unchecked(v[i + 0] = ctx.h[i]);
-    unchecked(v[i + 8] = BLAKE2B_IV[i]);
-  }
+  unchecked(v[ 0] = h[0]);
+  unchecked(v[ 1] = h[1]);
+  unchecked(v[ 2] = h[2]);
+  unchecked(v[ 3] = h[3]);
+  unchecked(v[ 4] = h[4]);
+  unchecked(v[ 5] = h[5]);
+  unchecked(v[ 6] = h[6]);
+  unchecked(v[ 7] = h[7]);
+  unchecked(v[ 8] = BLAKE2B_IV_0);
+  unchecked(v[ 9] = BLAKE2B_IV_1);
+  unchecked(v[10] = BLAKE2B_IV_2);
+  unchecked(v[11] = BLAKE2B_IV_3);
+  unchecked(v[12] = BLAKE2B_IV_4);
+  unchecked(v[13] = BLAKE2B_IV_5);
+  unchecked(v[14] = BLAKE2B_IV_6);
+  unchecked(v[15] = BLAKE2B_IV_7);
 
   // low 64 bits of offset
   // unchecked(v[12] = v[12] ^ ctx.t);
@@ -130,15 +144,21 @@ export function blake2bInit(outlen: u32, key: Uint8Array | null): Context {
     throw new Error('Illegal key, expected Uint8Array with 0 < length <= 64');
   }
   const ctx = new Context(outlen);
+  const h = ctx.h;
 
   // Initialize State vector h with IV
-  for (let i = 0; i < 8; i++) {
-    unchecked(ctx.h[i] = BLAKE2B_IV[i]);
-  }
+  unchecked(h[0] = BLAKE2B_IV_0);
+  unchecked(h[1] = BLAKE2B_IV_1);
+  unchecked(h[2] = BLAKE2B_IV_2);
+  unchecked(h[3] = BLAKE2B_IV_3);
+  unchecked(h[4] = BLAKE2B_IV_4);
+  unchecked(h[5] = BLAKE2B_IV_5);
+  unchecked(h[6] = BLAKE2B_IV_6);
+  unchecked(h[7] = BLAKE2B_IV_7);
 
   // Mix key size (cbKeyLen) and desired hash length (cbHashLen) into h0
   const keylen: u64 = key !== null ? key.length : 0;
-  unchecked(ctx.h[0] ^= 0x01010000 ^ (keylen << 8) ^ (outlen as u64));
+  unchecked(h[0] ^= 0x01010000 ^ (keylen << 8) ^ (outlen as u64));
 
   // key the hash, if applicable
   if (key) {
@@ -166,12 +186,15 @@ export function blake2bUpdate(ctx: Context, input: Uint8Array): void {
 // Completes a BLAKE2b streaming hash
 // Returns a Uint8Array containing the message digest
 export function blake2bFinal(ctx: Context): Uint8Array {
-  ctx.t += ctx.c; // mark last block offset
+  let b = ctx.b;
+  let c = ctx.c;
+  ctx.t += c; // mark last block offset
 
-  while (ctx.c < 128) { // fill up with zeros
-    unchecked(ctx.b[ctx.c++] = 0);
+  while (c < 128) { // fill up with zeros
+    unchecked(b[c++] = 0);
   }
-  blake2bCompress(ctx, true, load<u32>(changetype<usize>(ctx.b))); // final block flag = 1
+  ctx.c = c;
+  blake2bCompress(ctx, true, load<u32>(changetype<usize>(b))); // final block flag = 1
 
   // little endian convert and store
   // const u64a = new Uint64Array(ctx.outlen / 8);
@@ -203,10 +226,16 @@ export function blake2b(input: Uint8Array, key: Uint8Array | null = null, outlen
 // @ts-ignore
 @inline
 export function blake2bResetForShortMessage(ctx: Context): void {
+  const h = ctx.h;
   // Initialize State vector h with IV
-  for (let i = 0; i < 8; i++) {
-    unchecked(ctx.h[i] = BLAKE2B_IV[i]);
-  }
+  unchecked(h[0] = BLAKE2B_IV_0);
+  unchecked(h[1] = BLAKE2B_IV_1);
+  unchecked(h[2] = BLAKE2B_IV_2);
+  unchecked(h[3] = BLAKE2B_IV_3);
+  unchecked(h[4] = BLAKE2B_IV_4);
+  unchecked(h[5] = BLAKE2B_IV_5);
+  unchecked(h[6] = BLAKE2B_IV_6);
+  unchecked(h[7] = BLAKE2B_IV_7);
 
   // Danger: These operations and resetting are really only possible because our input is exactly 128 bytes
   // for(let i = 0; i < 128; i++) {
@@ -218,5 +247,5 @@ export function blake2bResetForShortMessage(ctx: Context): void {
   // ctx.m.fill(0);
   // ctx.v.fill(0);
 
-  ctx.h[0] ^= 0x01010000 ^ (ctx.outlen as u64);
+  h[0] ^= 0x01010000 ^ (ctx.outlen as u64);
 }
