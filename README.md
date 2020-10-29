@@ -120,4 +120,4 @@ Verification can be done as follows:
 These steps can happen in any order.
 
 ## License
-MIT
+Friendly Captcha License
