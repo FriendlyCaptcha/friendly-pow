@@ -8,6 +8,8 @@ All rights reserved.
 
 ## Preamble
 
+  We are a friendly company. If you need a license with more permissions for your project, please send us an email with more information about your planned use to help@friendlycaptcha.com. Together we will find a good solution!
+
   This Agreement governs the relationship between you or the organization on whose behalf you are entering into this agreement (hereinafter: Licensee) and Friendly Captcha GmbH whose principal place of business is in Germany (hereinafter: Licensor). This Agreement sets the terms, rights, restrictions and obligations on using the software created and owned by Licensor (hereinafter: The Software).
 
 ## License Grant
