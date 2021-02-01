@@ -2,9 +2,9 @@
 
 The PoW challenge library used by FriendlyCaptcha.
 
-If you are looking for the client code (=widget) and documentation, see the [**friendly-challenge repository**](https://github.com/gzuidhof/friendly-challenge).
+If you are looking for the client code (=widget) and documentation, see the [**friendly-challenge repository**](https://github.com/FriendlyCaptcha/friendly-challenge).
 
-Friendly-pow has a puzzle solver implementation in both WASM and JS (as fallback for very old browsers). The WASM build is an order of magnitude faster in my own experiments.
+Friendly-pow has a puzzle solver implementation in both WASM and JS (as fallback for very old browsers). The WASM build is an order of magnitude faster in our own experiments.
 
 In this document we will call the computational challenge the computer has to solve the **puzzle**, the client has to find one or more **solutions** that can later be verified.
 
