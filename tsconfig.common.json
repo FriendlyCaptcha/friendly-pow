@@ -1,0 +1,8 @@
+{ // CommonJS (for node)
+  "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "outDir": "./dist/node",
+      "module": "commonjs",
+    },
+  }
+  
