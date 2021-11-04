@@ -90,11 +90,7 @@ declare function test(description: string, callback: () => void): void;
  * });
  * ```
  */
-declare function throws(
-  description: string,
-  callback: () => void,
-  message?: string,
-): void;
+declare function throws(description: string, callback: () => void, message?: string): void;
 
 /**
  * This function creates a test that is expected to fail. This is useful to verify if a given
@@ -115,11 +111,7 @@ declare function throws(
  * });
  * ```
  */
-declare function itThrows(
-  description: string,
-  callback: () => void,
-  message?: string,
-): void;
+declare function itThrows(description: string, callback: () => void, message?: string): void;
 
 /**
  * This function creates a callback that is called before each individual test is run in this test
@@ -526,10 +518,7 @@ declare class Expectation<T> {
    * ```
    */
   // @ts-ignore: expected value should be known at compile time
-  toInclude<U extends valueof<T> | indexof<T>>(
-    expected: U,
-    message?: string,
-  ): void;
+  toInclude<U extends valueof<T> | indexof<T>>(expected: U, message?: string): void;
 
   /**
    * This method asserts that a given T that extends `Array<U>` has a value/reference included.
@@ -559,10 +548,7 @@ declare class Expectation<T> {
    * ```
    */
   // @ts-ignore: expected value should be known at compile time
-  toIncludeEqual<U extends indexof<T> | valueof<T>>(
-    expected: U,
-    message?: string,
-  ): void;
+  toIncludeEqual<U extends indexof<T> | valueof<T>>(expected: U, message?: string): void;
 
   /**
    * This method asserts that a given T that extends `Array<U>` has a value/reference included and
@@ -577,10 +563,7 @@ declare class Expectation<T> {
    * ```
    */
   // @ts-ignore: expected value should be known at compile time
-  toContainEqual<U extends indexof<T> | valueof<T>>(
-    expected: U,
-    message?: string,
-  ): void;
+  toContainEqual<U extends indexof<T> | valueof<T>>(expected: U, message?: string): void;
 
   /**
    * Match a snapshot with a given name for this test.
@@ -874,12 +857,7 @@ declare class Reflect {
    * @param {usize[]} stack - Internal use only, used to prevent recursion.
    * @param {usize[]} cache - Internal use only, used to prevent recursion.
    */
-  public static equals<T>(
-    left: T,
-    right: T,
-    stack?: usize[],
-    cache?: usize[],
-  ): i32;
+  public static equals<T>(left: T, right: T, stack?: usize[], cache?: usize[]): i32;
 
   /**
    * Attach a stack trace to a value.

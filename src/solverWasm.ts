@@ -8,7 +8,6 @@ const HASH_SIZE_BYTES = 32;
 // @external("console", "log")
 // declare function log(msg: string): void;
 
-
 /**
  * Solve the blake2b hashing problem, re-using the memory between different attempts (which solves up to 50% faster).
  *
@@ -27,30 +26,30 @@ const HASH_SIZE_BYTES = 32;
  * @param threshold u32 value under which the solution's hash should be below.
  */
 export function solveBlake2bEfficient(input: Uint8Array, threshold: u32, n: u32): Uint8Array {
-    if (input.length != CHALLENGE_SIZE_BYTES) {
-        throw new Error("Invalid input");
+  if (input.length != CHALLENGE_SIZE_BYTES) {
+    throw new Error("Invalid input");
+  }
+
+  const arrayPtr = changetype<usize>(input);
+  const bufferPtr = load<u32>(arrayPtr);
+
+  const ctx = new Context(HASH_SIZE_BYTES);
+  const h = ctx.h;
+  ctx.t = CHALLENGE_SIZE_BYTES;
+
+  const start = load<u32>(bufferPtr + 124);
+  const end = start + n;
+  for (let i: u32 = start; i < end; i++) {
+    store<u32>(bufferPtr + 124, i);
+    // log(input.slice(124));
+
+    blake2bResetForShortMessage(ctx);
+    blake2bCompress(ctx, true, bufferPtr);
+
+    if ((unchecked(h[0]) as u32) < threshold) {
+      return Uint8Array.wrap(h.buffer);
     }
-
-    const arrayPtr = changetype<usize>(input);
-    const bufferPtr = load<u32>(arrayPtr);
-
-    const ctx = new Context(HASH_SIZE_BYTES);
-    const h = ctx.h;
-    ctx.t = CHALLENGE_SIZE_BYTES;
-
-    const start = load<u32>(bufferPtr + 124);
-    const end = start + n;
-    for (let i: u32 = start; i < end; i++) {
-        store<u32>(bufferPtr + 124, i);
-        // log(input.slice(124));
-
-        blake2bResetForShortMessage(ctx);
-        blake2bCompress(ctx, true, bufferPtr);
-
-        if ((unchecked(h[0]) as u32) < threshold) {
-            return Uint8Array.wrap(h.buffer);
-        }
-    }
-    // No solution found signal.
-    return new Uint8Array(0);
+  }
+  // No solution found signal.
+  return new Uint8Array(0);
 }
