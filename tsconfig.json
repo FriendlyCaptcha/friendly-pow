@@ -2,7 +2,7 @@
     "compilerOptions": {
       "outDir": "./dist",
       "rootDir": "./src",
-      "module": "commonjs",
+      "module": "ESNext",
       "target": "ES2019",
       "lib": ["DOM", "ESNext"],
       "strict": true,

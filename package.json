@@ -1,6 +1,6 @@
 {
   "name": "friendly-pow",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Friendly WASM & JS Proof of Work algorithms for CAPTCHA",
   "author": "Guido Zuidhof <guido@friendlycaptcha.com>",
   "repository": "https://github.com/FriendlyCaptcha/friendly-pow",
