@@ -136,4 +136,4 @@ These steps can happen in any order.
 
 ## License
 
-Friendly Captcha License
+Friendly Captcha License; source-available only
