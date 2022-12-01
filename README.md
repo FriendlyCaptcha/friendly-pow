@@ -16,6 +16,11 @@ The WASM is compiled from AssemblyScript, which is more or less a subset of Type
 
 Building this project can be tricky, it currently uses an Assemblyscript version that is not the latest. The loader will have to be changed to account for breaking changes if we want to update. The current loader has custom modifications to get bundle size down considerably, something that will need to happen for an upgraded version too. Currently there is little gain if we do so.
 
+```
+npm i --legacy-peer-deps
+npm run build
+```
+
 ## Puzzle format
 
 The puzzle is represented as a 32 byte to 64 byte message, let's call this the puzzle buffer. Encoded in this byte buffer is metadata such as when the puzzle was created, its difficulty, and a cryptographically random nonce, this is described in more detail later.
