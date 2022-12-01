@@ -18,10 +18,14 @@ export function encode(bytes: Uint8Array): string {
     const b0 = bytes[i + 0];
     const b1 = bytes[i + 1];
     const b2 = bytes[i + 2];
-    base64 += CHARS.charAt(b0 >>> 2);
-    base64 += CHARS.charAt(((b0 & 3) << 4) | (b1 >>> 4));
-    base64 += CHARS.charAt(((b1 & 15) << 2) | (b2 >>> 6));
-    base64 += CHARS.charAt(b2 & 63);
+    // This temporary variable stops the NextJS 13 compiler from breaking this code in optimization.
+    // See issue https://github.com/FriendlyCaptcha/friendly-challenge/issues/165
+    let t = "";
+    t += CHARS.charAt(b0 >>> 2);
+    t += CHARS.charAt(((b0 & 3) << 4) | (b1 >>> 4));
+    t += CHARS.charAt(((b1 & 15) << 2) | (b2 >>> 6));
+    t += CHARS.charAt(b2 & 63);
+    base64 += t;
   }
 
   if (len % 3 === 2) {
